@@ -3,7 +3,7 @@
 if (typeof tR === "undefined") {
   tR = "";
 }
-var location = "new york";
+var location = "new york"; // set to your location
 
 // Step 1: Geocode location to get coordinates
 var geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=en&format=json`;
@@ -85,7 +85,11 @@ if (!geoResult) {
   tR += `📅 Current Date & Time: ${new Date().toLocaleString()}\n`;
 
   // Current conditions summary
-  tR += `Now: ${current.temperature_2m}°C, ${currentEmoji} ${currentCondition}, Humidity: ${currentHumidity}%\n\n`;
+  tR += `Now: ${current.temperature}°C, ${currentEmoji} ${currentCondition}, Humidity: ${currentHumidity}%`;
+  if (current.windspeed !== undefined) {
+    tR += `, 🌬️ ${current.windspeed} m/s`;
+  }
+  tR += `\n\n`;
 
   // Loop through daily forecasts
   var daily = weather.daily || {};
@@ -95,7 +99,6 @@ if (!geoResult) {
     var dow = getDayOfWeek(date);
     var condition = getWeatherDescription(daily.weathercode[i]);
     var condEmoji = weatherEmoji(daily.weathercode[i]);
-
     tR += `${dow} ${date} | ${condEmoji} ${condition} | 🌡️ H:${daily.temperature_2m_max[i]}°C L:${daily.temperature_2m_min[i]}°C\n\n`;
     i++;
   }
