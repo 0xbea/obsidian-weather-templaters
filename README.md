@@ -1,6 +1,6 @@
 # Obsidian Weather Templates
 
-This repository contains two Templater-powered Obsidian notes that fetch weather data from
+This repository contains Templater-powered Obsidian notes that fetch weather data from
 online APIs and render a simple forecast report.
 
 Vibe-coded cus I have better things to do than master Javascript. 
