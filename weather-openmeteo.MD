@@ -22,10 +22,10 @@ if (!geoResult) {
   }
 
   // Step 2: Fetch weather data using coordinates
-  // use valid parameters: current_weather and hourly humidity
+  // use valid parameters: current_weather and hourly humidity (and add sunrise/sunset)
   var weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
                    `&current_weather=true&hourly=relativehumidity_2m` +
-                   `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
+                   `&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset` +
                    `&timezone=auto`;
   var weatherResponse = await requestUrl(weatherUrl);
   var weather = JSON.parse(weatherResponse.text);
@@ -99,7 +99,14 @@ if (!geoResult) {
     var dow = getDayOfWeek(date);
     var condition = getWeatherDescription(daily.weathercode[i]);
     var condEmoji = weatherEmoji(daily.weathercode[i]);
-    tR += `${dow} ${date} | ${condEmoji} ${condition} | 🌡️ H:${daily.temperature_2m_max[i]}°C L:${daily.temperature_2m_min[i]}°C\n\n`;
+    tR += `${dow} ${date} | ${condEmoji} ${condition} | 🌡️ H:${daily.temperature_2m_max[i]}°C L:${daily.temperature_2m_min[i]}°C`;
+    if (daily.sunrise && daily.sunrise[i]) {
+      // strip date portion, keep HH:MM
+      var sr = daily.sunrise[i].split("T")[1];
+      var ss = daily.sunset[i].split("T")[1];
+      tR += ` | 🌄 ${sr} - 🌅 ${ss}`;
+    }
+    tR += `\n\n`;
     i++;
   }
   } // end else (weather not error)
