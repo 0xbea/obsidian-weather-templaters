@@ -84,29 +84,44 @@ if (!geoResult) {
   tR += `## 🌍 Weather Report for ${cityName}\n`;
   tR += `📅 Current Date & Time: ${new Date().toLocaleString()}\n`;
 
-  // Current conditions summary
-  tR += `Now: ${current.temperature}°C, ${currentEmoji} ${currentCondition}, Humidity: ${currentHumidity}%`;
+  // Current conditions summary in a small table
+  tR += `\n### Current Conditions\n`;
+  tR += `| Temperature | Condition | Humidity | Wind |\n`;
+  tR += `| ----------- | --------- | -------- | ---- |\n`;
+  tR += `| ${current.temperature}°C | ${currentEmoji} ${currentCondition} | ${currentHumidity}% | `;
   if (current.windspeed !== undefined) {
-    tR += `, 🌬️ ${current.windspeed} m/s`;
+    tR += `${current.windspeed} m/s`;
+  } else {
+    tR += `N/A`;
   }
-  tR += `\n\n`;
+  tR += ` |\n\n`;
 
-  // Loop through daily forecasts
+  // Loop through daily forecasts and output as markdown table
   var daily = weather.daily || {};
+  tR += `| ☀️ Day | Date | Condition | 🌡️ High | 🌡️ Low | 🌅 Sunrise‑Sunset (hrs) |\n`;
+  tR += `| --- | ---- | --------- | ---- | --- | ------------------------- |\n`;
   var i = 0;
   while (daily.time && i < daily.time.length) {
     var date = daily.time[i];
     var dow = getDayOfWeek(date);
     var condition = getWeatherDescription(daily.weathercode[i]);
     var condEmoji = weatherEmoji(daily.weathercode[i]);
-    tR += `${dow} ${date} | ${condEmoji} ${condition} | 🌡️ H:${daily.temperature_2m_max[i]}°C L:${daily.temperature_2m_min[i]}°C`;
+    var high = daily.temperature_2m_max[i];
+    var low = daily.temperature_2m_min[i];
+    var sun = '';
+    var sunlight = '';
     if (daily.sunrise && daily.sunrise[i]) {
-      // strip date portion, keep HH:MM
       var sr = daily.sunrise[i].split("T")[1];
       var ss = daily.sunset[i].split("T")[1];
-      tR += ` | 🌄 ${sr} - 🌅 ${ss}`;
+      // calculate hours between sr and ss
+      var startDate = new Date(date + "T" + sr);
+      var endDate = new Date(date + "T" + ss);
+      var diffMs = endDate - startDate;
+      var diffHrs = diffMs / (1000 * 60 * 60);
+      sunlight = diffHrs.toFixed(2);
+      sun = `${sr} - ${ss} (${sunlight}h)`;
     }
-    tR += `\n\n`;
+    tR += `| ${dow} | ${date} | ${condEmoji} ${condition} | ${high}°C | ${low}°C | ${sun} |\n`;
     i++;
   }
   } // end else (weather not error)
